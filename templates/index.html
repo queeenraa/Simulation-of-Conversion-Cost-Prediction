@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prediksi Conversion Cost</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Poppins", sans-serif;
+        background-color: #f8f9fa;
+      }
+      .container {
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      }
+      h1 {
+        font-size: 32px;
+        font-weight: bold;
+        color: #216a3c;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      .form-label {
+        font-weight: bold;
+        color: #216a3c;
+      }
+      .btn-primary,
+      .btn-success {
+        background-color: #216a3c;
+        border-color: #216a3c;
+      }
+      .btn-primary:hover,
+      .btn-success:hover {
+        background-color: #1a5230;
+      }
+      .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+      }
+      .btn-danger:hover {
+        background-color: #c82333;
+      }
+      .table {
+        text-align: center;
+      }
+      .table th {
+        background-color: #216a3c;
+        color: #ffffff;
+        font-size: 10px;
+      }
+      .result-container {
+        border: 2px solid #216a3c;
+        padding: 20px;
+        border-radius: 10px;
+      }
+      .summary {
+        margin-top: 20px;
+      }
+      .summary label {
+        font-weight: bold;
+        color: #216a3c;
+      }
+      .summary input {
+        background-color: #216a3c;
+        color: white;
+        font-weight: bold;
+        border: none;
+        text-align: center;
+        width: 100%;
+      }
+      .action-buttons {
+        display: inline-flex;
+        gap: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container my-5">
+      <h1>Prediksi Conversion Cost</h1>
+      <div class="row">
+        <!-- Form Section -->
+        <div class="col-md-6">
+          <form id="dataForm">
+            <div class="mb-3">
+              <label for="line" class="form-label">LINE</label>
+              <div class="input-group">
+                <select id="line" class="form-select form-control" required>
+                  <option selected>Pilih Line</option>
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="C">C</option>
+                  <option value="D1">D1</option>
+                  <option value="E">E</option>
+                  <option value="F1">F1</option>
+                  <option value="G1">G1</option>
+                  <option value="H1">H1</option>
+                  <option value="I">I</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="output" class="form-label">OUTPUT (KG)</label>
+              <input type="number" id="output" class="form-control" required />
+            </div>
+            <div class="mb-3">
+              <label for="oee" class="form-label">OEE (%)</label>
+              <input type="number" id="oee" class="form-control" required />
+            </div>
+            <button
+              type="button"
+              class="btn btn-primary w-100 mb-2"
+              onclick="addDataToTable()"
+            >
+              TAMBAH DATA
+            </button>
+          </form>
+        </div>
+        <!-- Table Section -->
+        <div class="col-md-6">
+          <div class="result-container">
+            <h4 class="text-center mb-4">HASIL PREDIKSI</h4>
+            <div class="table-responsive">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>LINE</th>
+                    <th>OUTPUT (KG)</th>
+                    <th>OEE (%)</th>
+                    <th>PREDICT CONVERSION COST (RUPIAH)</th>
+                    <th>AKSI</th>
+                  </tr>
+                </thead>
+                <tbody id="dataTable"></tbody>
+              </table>
+            </div>
+            <button
+              type="button"
+              class="btn btn-success w-100"
+              onclick="predictData()"
+            >
+              PREDIKSI
+            </button>
+            <div class="summary">
+              <label for="averageCost"
+                >RATA-RATA CONVERSION COST (RUPIAH)</label
+              >
+              <input type="text" id="averageCost" readonly />
+              <label for="averageOee" class="mt-2">RATA-RATA OEE (%)</label>
+              <input type="text" id="averageOee" readonly />
+            </div>
+            <!-- Clear Button -->
+            <button
+              type="button"
+              class="btn btn-danger w-100 mt-3"
+              onclick="clearTable()"
+            >
+              CLEAR TABLE
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function addDataToTable() {
+        const line = document.getElementById("line");
+        const output = document.getElementById("output");
+        const oee = document.getElementById("oee");
+
+        // Validasi input
+        if (line.value === "Pilih Line" || !output.value || !oee.value) {
+          alert("Harap lengkapi semua field!");
+          return;
+        }
+
+        const table = document.getElementById("dataTable");
+        const newRow = table.insertRow();
+
+        newRow.innerHTML = `
+                <td>${line.value}</td>
+                <td>${output.value}</td>
+                <td>${oee.value}</td>
+                <td>-</td>
+                <td class="action-buttons">
+                  <button class="btn btn-warning btn-sm" onclick="editRow(this)">Edit</button>
+                  <button class="btn btn-danger btn-sm" onclick="deleteRow(this)">Hapus</button>
+                </td>
+            `;
+
+        // Reset form
+        line.selectedIndex = 0;
+        output.value = "";
+        oee.value = "";
+      }
+
+      function editRow(button) {
+        const row = button.parentElement.parentElement;
+        const cells = row.querySelectorAll("td");
+
+        // Isi data baris yang dipilih ke dalam form input
+        document.getElementById("line").value = cells[0].textContent;
+        document.getElementById("output").value = cells[1].textContent;
+        document.getElementById("oee").value = cells[2].textContent;
+
+        // Simpan referensi baris yang sedang diedit
+        currentEditingRow = row;
+
+        // Ubah tombol tambah menjadi simpan
+        const addButton = document.querySelector(
+          "button[onclick='addDataToTable()']"
+        );
+        addButton.innerText = "UPDATE DATA";
+        addButton.setAttribute("onclick", "updateRow()");
+      }
+
+      function deleteRow(button) {
+        const row = button.parentElement.parentElement;
+        row.remove();
+      }
+
+      let currentEditingRow = null; // Variabel global untuk melacak baris yang sedang diedit
+
+      function updateRow() {
+        if (!currentEditingRow) {
+          alert("Tidak ada baris yang sedang diedit.");
+          return;
+        }
+
+        // Ambil data baru dari form
+        const line = document.getElementById("line").value;
+        const output = document.getElementById("output").value;
+        const oee = document.getElementById("oee").value;
+
+        // Validasi input
+        if (line === "Pilih Line" || !output || !oee) {
+          alert("Harap lengkapi semua field!");
+          return;
+        }
+
+        // Update isi baris yang sedang diedit
+        const cells = currentEditingRow.querySelectorAll("td");
+        cells[0].textContent = line;
+        cells[1].textContent = output;
+        cells[2].textContent = oee;
+
+        // Reset tombol "UPDATE DATA" kembali menjadi "TAMBAH DATA"
+        const addButton = document.querySelector(
+          "button[onclick='updateRow()']"
+        );
+        addButton.innerText = "TAMBAH DATA";
+        addButton.setAttribute("onclick", "addDataToTable()");
+
+        // Reset form
+        document.getElementById("line").selectedIndex = 0;
+        document.getElementById("output").value = "";
+        document.getElementById("oee").value = "";
+
+        // Hapus referensi ke baris yang sedang diedit
+        currentEditingRow = null;
+      }
+
+      function predictData() {
+        const rows = document.querySelectorAll("#dataTable tr");
+
+        if (rows.length === 0) {
+          alert("Tidak ada data untuk diprediksi!");
+          return;
+        }
+
+        const predictions = Array.from(rows).map((row) => ({
+          LINE: row.cells[0].textContent,
+          "OUTPUT(KG)": parseInt(row.cells[1].textContent),
+          OEE: parseFloat(row.cells[2].textContent),
+        }));
+
+        fetch("/predict", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ predictions }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            // Update tabel dengan hasil prediksi
+            data.forEach((item, index) => {
+              const rows = document.querySelectorAll("#dataTable tr");
+              rows[index].cells[3].textContent =
+                item["Predicted Conversion Cost"].toLocaleString("id-ID");
+            });
+
+            // Hitung rata-rata conversion cost
+            const conversionCosts = data.map(
+              (item) => item["Predicted Conversion Cost"]
+            );
+            const averageCost =
+              conversionCosts.reduce((a, b) => a + b, 0) /
+              conversionCosts.length;
+            document.getElementById("averageCost").value =
+              averageCost.toLocaleString("id-ID");
+
+            // Hitung rata-rata OEE
+            const oeeValues = Array.from(
+              document.querySelectorAll("#dataTable tr")
+            ).map((row) => parseFloat(row.cells[2].textContent));
+            const averageOee =
+              oeeValues.reduce((a, b) => a + b, 0) / oeeValues.length;
+            document.getElementById("averageOee").value = averageOee.toFixed(2);
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("Terjadi kesalahan dalam prediksi");
+          });
+      }
+
+      function clearTable() {
+        const table = document.getElementById("dataTable");
+        table.innerHTML = "";
+        document.getElementById("averageCost").value = "";
+        document.getElementById("averageOee").value = "";
+      }
+    </script>
+  </body>
+</html>
